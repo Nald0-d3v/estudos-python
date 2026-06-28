@@ -8,7 +8,7 @@ pasta = input("Endereço: ")
 arquivos = os.listdir(pasta)
 
 
-extensao = input("Qual extensão deseja procurar? ")
+extensao = input("Qual a extensão deseja procurar? ")
 extensao_m = extensao.lower()
 
 if not extensao_m.startswith("."):
@@ -35,4 +35,3 @@ for arquivo in arquivos:
 
 print("Total:", total )
 
-#agora deu certo, eu devia ter escrito algo de errado no terminal
