@@ -13,7 +13,7 @@ arquivos = os.listdir(pasta)
 
 # Renomear imagens
 
-numero = 1
+numero = 0
 
 for arquivo in arquivos:
 
@@ -21,11 +21,15 @@ for arquivo in arquivos:
     caminho = os.path.join(pasta, arquivo)
 
     nome, extensao = os.path.splitext(arquivo)
-
     novo_nome = "Imagem_" + str(numero) + extensao
+
     arquivo_novo = os.path.join(pasta, novo_nome)
 
-    os.rename(caminho, arquivo_novo)
-    print(arquivo, "renomeado para", novo_nome)
 
-    numero += 1
+    if arquivo_minusculo.endswith((".jpg", ".jpeg", ".png", ".gif", ".bmp")):
+
+        os.rename(caminho, arquivo_novo)
+        print(arquivo, "renomeado para", novo_nome)
+        numero += 1
+
+print("Total de imagens renomeadas:", numero)
