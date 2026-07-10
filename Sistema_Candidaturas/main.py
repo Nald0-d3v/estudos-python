@@ -166,8 +166,6 @@ def remover_candidatura():
 
     print("Empresa excluida com sucesso.")
 
-    #entao remover seria assim?
-
 
 criar_tabela()
 
