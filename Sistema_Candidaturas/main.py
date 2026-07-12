@@ -1,5 +1,8 @@
 import sqlite3
+from datetime import datetime
 
+
+# Criar banco e tabela
 
 def criar_tabela():
     conexao = sqlite3.connect("candidaturas.db")
@@ -21,19 +24,43 @@ def criar_tabela():
     conexao.close()
 
 
+# Adicionar candidatura
+
 def adicionar_candidatura():
+    empresa = input("Nome da empresa: ").strip()
+    cargo = input("Nome do cargo: ").strip()
 
-    empresa = input("Nome da empresa: ")
-    cargo = input("Nome do cargo: ")
-    salario = int(input("Salario: "))
-    modalidade = input("Modalidade: ")
-    status = input("Status atual: ")
-    data = input("Data: ")
+    while True:
+        try:
+            salario = float(input("Salário: "))
 
+            if salario < 0:
+                print("O salário não pode ser negativo.")
+                continue
+
+            break
+
+        except ValueError:
+            print("Digite um salário válido usando números.")
+
+    modalidade = input("Modalidade: ").strip()
+    status = input("Status atual: ").strip().lower()
+
+    while True:
+        data = input("Digite a data (DD/MM/AAAA): ")
+
+        try:
+            data_validada = datetime.strptime(data, "%d/%m/%Y")
+
+            # Converte novamente para texto antes de salvar
+            data = data_validada.strftime("%d/%m/%Y")
+            break
+
+        except ValueError:
+            print("Data inválida.")
 
     conexao = sqlite3.connect("candidaturas.db")
     cursor = conexao.cursor()
-
 
     cursor.execute(
         """
@@ -60,72 +87,83 @@ def adicionar_candidatura():
     conexao.commit()
     conexao.close()
 
+    print("Candidatura adicionada com sucesso.")
+
+
+# Listar candidaturas
 
 def listar_candidaturas():
     conexao = sqlite3.connect("candidaturas.db")
     cursor = conexao.cursor()
 
     cursor.execute("SELECT * FROM candidaturas")
-    candidatos = cursor.fetchall()
+    candidaturas = cursor.fetchall()
 
-    if not candidatos:
+    if not candidaturas:
         print("Nenhuma candidatura cadastrada.")
+
     else:
         print("\nCandidaturas cadastradas:\n")
 
-        for candidato in candidatos:
-            print("ID:", candidato[0])
-            print("Empresa:", candidato[1])
-            print("Cargo:", candidato[2])
-            print("Salário:", candidato[3])
-            print("Modalidade:", candidato[4])
-            print("Status:", candidato[5])
-            print("Data:", candidato[6])
+        for candidatura in candidaturas:
+            print("ID:", candidatura[0])
+            print("Empresa:", candidatura[1])
+            print("Cargo:", candidatura[2])
+            print("Salário:", candidatura[3])
+            print("Modalidade:", candidatura[4])
+            print("Status:", candidatura[5])
+            print("Data:", candidatura[6])
             print("-" * 30)
 
     conexao.close()
 
+
+# Atualizar status
 
 def atualizar_status():
     conexao = sqlite3.connect("candidaturas.db")
     cursor = conexao.cursor()
 
     cursor.execute("SELECT * FROM candidaturas")
-    candidatos = cursor.fetchall()
+    candidaturas = cursor.fetchall()
 
-    if not candidatos:
+    if not candidaturas:
         print("Nenhuma candidatura cadastrada.")
         conexao.close()
         return
 
-    for candidato in candidatos:
-        print("Empresa:", candidato[1], "- ID:", candidato[0])
-
+    for candidatura in candidaturas:
+        print(
+            "Empresa:",
+            candidatura[1],
+            "- ID:",
+            candidatura[0]
+        )
 
     status_validos = [
-    "enviado",
-    "em análise",
-    "entrevista",
-    "recusado",
-    "contratado"
-        ]
+        "enviado",
+        "em análise",
+        "entrevista",
+        "recusado",
+        "contratado"
+    ]
 
-    print()
-    print("Status disponiveis: ")
-    print("enviado")
-    print("em análise")
-    print("entrevista")
-    print("recusado")
-    print("contratado")
-    print()
+    print("\nStatus disponíveis:")
+
+    for status in status_validos:
+        print("-", status)
 
     while True:
+        identificar = input(
+            "\nDigite o ID da candidatura que deseja alterar: "
+        )
 
-        identificar = input("Digite o ID da empresa que deseja mudar: ")
-        novo_status = input("Digite o status desejado: ")
+        novo_status = input(
+            "Digite o novo status: "
+        ).strip().lower()
 
         if novo_status not in status_validos:
-            print("Status invalido")
+            print("Status inválido.")
             continue
 
         cursor.execute(
@@ -140,55 +178,73 @@ def atualizar_status():
         break
 
 
+# Remover candidatura
+
 def remover_candidatura():
     conexao = sqlite3.connect("candidaturas.db")
     cursor = conexao.cursor()
 
     cursor.execute("SELECT * FROM candidaturas")
-    candidatos = cursor.fetchall()
+    candidaturas = cursor.fetchall()
 
-    if not candidatos:
+    if not candidaturas:
         print("Nenhuma candidatura cadastrada.")
         conexao.close()
         return
 
-    for candidato in candidatos:
-        print("Empresa:", candidato[1], "- ID:", candidato[0])
+    for candidatura in candidaturas:
+        print(
+            "Empresa:",
+            candidatura[1],
+            "- ID:",
+            candidatura[0]
+        )
 
-    identificar = input("Digite o ID da empresa que deseja exluir: ")
+    identificar = input(
+        "Digite o ID da candidatura que deseja excluir: "
+    )
 
     cursor.execute(
-    "DELETE FROM candidaturas WHERE id = ?",
-    (identificar,))
+        "DELETE FROM candidaturas WHERE id = ?",
+        (identificar,)
+    )
 
     conexao.commit()
     conexao.close()
 
-    print("Empresa excluida com sucesso.")
+    print("Candidatura excluída com sucesso.")
 
+
+# Início do programa
 
 criar_tabela()
 
+print("\nSistema de candidaturas")
+print("Comandos disponíveis:")
+print("- adicionar candidatura")
+print("- listar candidaturas")
+print("- atualizar status")
+print("- remover candidatura")
+print("- sair")
+
 while True:
-    menu = input("Comando: ").strip().lower()
+    menu = input("\nComando: ").strip().lower()
 
-
-    if menu == 'sair':
+    if menu == "sair":
         print("Encerrando programa.")
         break
 
-    elif menu == 'atualizar status':
-
-        atualizar_status()
-
-    elif menu == 'adicionar candidatura':
-
+    elif menu == "adicionar candidatura":
         adicionar_candidatura()
 
-    elif menu == 'remover candidatura':
-        
+    elif menu == "listar candidaturas":
+        listar_candidaturas()
+
+    elif menu == "atualizar status":
+        atualizar_status()
+
+    elif menu == "remover candidatura":
         remover_candidatura()
 
-    elif menu == 'listar candidatura':
-
-        listar_candidaturas() 
+    else:
+        print("Comando inválido.")
